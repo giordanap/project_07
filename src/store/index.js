@@ -18,11 +18,9 @@ export default createStore({
     },
     set(state, payload) {
       state.tasks.push(payload)
-      localStorage.setItem('tasks', JSON.stringify(state.tasks))
     },
     delete(state, payload) {
       state.tasks = state.tasks.filter( item => item.id !== payload)
-      localStorage.setItem('tasks', JSON.stringify(state.tasks))
     },
     task(state, payload) {
       if ( !state.tasks.find( item => item.id === payload) ) {
@@ -34,29 +32,70 @@ export default createStore({
     update(state, payload) {
       state.tasks = state.tasks.map(item => item.id === payload.id ? payload : item)
       router.push('/')
-      localStorage.setItem('tasks', JSON.stringify(state.tasks))
     }
   },
   actions: {
-    loadLocalStorage({commit}){
-      if (localStorage.getItem('tasks')) {
-        const tasks = JSON.parse( localStorage.getItem('tasks'))
-        commit('load', tasks)
-        return
+    async loadLocalStorage({commit}) {
+      try {
+        const res = fetch('https://udemy-api-4bf27-default-rtdb.firebaseio.com/tasks.json');
+        const dataBase = await res.json()
+        const arrayTasks = [];
+        // console.log(dataBase); return;
+        console.log('Hola'); return;
+        for (let id in dataBase){
+          arrayTasks.push(dataDB[id]);
+        }
+        // commit('load', arrayTasks)
+        console.log(arrayTasks)
+      } catch (error) {
+        // console.log(error)
       }
-
-      localStorage.setItem('tasks', JSON.stringify([]))
     },
-    setTasks({commit}, task) {
+    // use async to use await
+    async setTasks({commit}, task) {
+      try {
+        // create an object to save the items in the database
+        const res = await fetch(`https://udemy-api-4bf27-default-rtdb.firebaseio.com/tasks/${task.id}.json`, {
+          method: 'PUT', // GET by default, use put for add an item
+          // If use post, a random id is generated 
+          // It's optional because firebase detects json and configures automatically
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(task)
+        })
+
+        // const dataBase = await res.json()
+        
+      } catch (error) {
+        console.log(error)
+      }
       commit('set', task)
     },
-    deleteTasks({commit}, id) {
-      commit('delete', id)
+    async deleteTasks({commit}, id) {
+      try {
+        const res = fetch(`https://udemy-api-4bf27-default-rtdb.firebaseio.com/tasks/${id}.json`, {
+          method: 'DELETE'
+        })
+        commit('delete', id)
+      } catch (error) {
+        console.log(error)
+      }
     },
     setTask({commit}, id) {
       commit('task', id)
     },
-    updateTask({commit}, task) {
+    async updateTask({commit}, task) {
+      try {
+        const res = fetch(`https://udemy-api-4bf27-default-rtdb.firebaseio.com/tasks/${task.id}.json`, {
+          method: 'PATCH',
+          body: JSON.stringify(task)
+        })
+        const dataBase = await res.json()
+
+      } catch (error) {
+        console.log(error)
+      }
       commit('update', task)
     }
   },
