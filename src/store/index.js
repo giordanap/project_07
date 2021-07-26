@@ -37,18 +37,16 @@ export default createStore({
   actions: {
     async loadLocalStorage({commit}) {
       try {
-        const res = fetch('https://udemy-api-4bf27-default-rtdb.firebaseio.com/tasks.json');
+        const res = fetch('https://udemy-api-4bf27-default-rtdb.firebaseio.com/tasks.json')
         const dataBase = await res.json()
-        const arrayTasks = [];
-        // console.log(dataBase); return;
-        console.log('Hola'); return;
+        const arrayTasks = []
         for (let id in dataBase){
-          arrayTasks.push(dataDB[id]);
+          arrayTasks.push(dataBase[id])
         }
-        // commit('load', arrayTasks)
-        console.log(arrayTasks)
+        commit('load', arrayTasks)
+
       } catch (error) {
-        // console.log(error)
+        console.log(error)
       }
     },
     // use async to use await
@@ -64,8 +62,6 @@ export default createStore({
           },
           body: JSON.stringify(task)
         })
-
-        // const dataBase = await res.json()
         
       } catch (error) {
         console.log(error)
@@ -91,7 +87,6 @@ export default createStore({
           method: 'PATCH',
           body: JSON.stringify(task)
         })
-        const dataBase = await res.json()
 
       } catch (error) {
         console.log(error)
